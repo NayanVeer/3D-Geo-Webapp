@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Pune 3D Buildings Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    #controls {
+      position: absolute;
+      bottom: 10px; right: 10px;
+      background: white;
+      padding: 10px;
+      z-index: 1000;
+      font-family: sans-serif;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="controls">
+  <label for="time">Time: <span id="timeLabel"></span></label><br>
+  <input type="range" id="time" min="0" max="23" value="12"><br>
+  <label for="date">Day: <span id="dateLabel"></span></label><br>
+  <input type="range" id="date" min="1" max="365" value="180">
+</div>
+
+<!-- Leaflet & OSMBuildings -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.osmbuildings.org/classic/0.2.2b/OSMBuildings-Leaflet.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
