@@ -5,3 +5,4 @@ shapely
 geoalchemy2
 sqlalchemy
 pydantic
+python-dotenv

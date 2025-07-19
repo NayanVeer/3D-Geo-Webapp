@@ -1,0 +1,7 @@
+AI Integrated 3D Geo WebApp
+
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=admin
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=pune_city

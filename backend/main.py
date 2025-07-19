@@ -1,17 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# FastAPI app
 app = FastAPI(title="3D Geo WebApp Backend")
 
-# Allow cross-origin requests from frontend (important for JS maps)
+# Enable CORS for frontend access (e.g., WebGL viewer, JS maps)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # in production: replace * with your domain
+    allow_origins=["*"],  # Replace with frontend domain in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Root test route
 @app.get("/")
 async def root():
     return {"message": "Backend running 🚀"}
@@ -20,31 +22,24 @@ async def root():
 async def hello():
     return {"result": "Hello from FastAPI!"}
 
-# Connect FastAPI to PostGIS
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+# ---------------------
+# ✅ Include all routers
+# ---------------------
+from routes import (
+    buildings, landuse, place_points, place_polygon, places, railway, roads,
+    traffic_point, traffic_polygon, transport_stops, water_type, waterway, worship_places
+)
 
-DATABASE_URL = "postgresql+psycopg2://postgres:postgres@localhost:5432/postgres"
-
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-# A new API route to query your buildings table and return GeoJSON
-from sqlalchemy import text
-
-@app.get("/api/buildings")
-def get_buildings():
-    with engine.connect() as connection:
-        result = connection.execute(text("SELECT name, ST_AsGeoJSON(geom) FROM buildings"))
-        features = []
-        for row in result:
-            features.append({
-                "type": "Feature",
-                "properties": {"name": row[0]},
-                "geometry": eval(row[1])  # converts string GeoJSON to Python dict
-            })
-    return {
-        "type": "FeatureCollection",
-        "features": features
-    }
+app.include_router(buildings.router)
+app.include_router(landuse.router)
+app.include_router(place_points.router)
+app.include_router(place_polygon.router)
+app.include_router(places.router)
+app.include_router(railway.router)
+app.include_router(roads.router)
+app.include_router(traffic_point.router)
+app.include_router(traffic_polygon.router)
+app.include_router(transport_stops.router)
+app.include_router(water_type.router)
+app.include_router(waterway.router)
+app.include_router(worship_places.router)

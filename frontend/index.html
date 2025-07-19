@@ -4,25 +4,32 @@
   <meta charset="utf-8">
   <title>Pune 3D Buildings Map</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <style>
-    body, html { margin: 0; padding: 0; height: 100%; }
-    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-    #controls {
-      position: absolute;
-      bottom: 10px; right: 10px;
-      background: white;
-      padding: 10px;
-      z-index: 1000;
-      font-family: sans-serif;
-      border-radius: 4px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="map"></div>
 
+<!-- Top Search Bar -->
+<div id="search-container">
+  <input type="text" id="search-input" placeholder="Search location...">
+</div>
+
+<!-- Floating Controls -->
+<div id="floating-buttons">
+  <button onclick="toggleBasemapPanel()">🗺️ Basemap</button>
+  <button onclick="toggle3DBuildings()">🏙️ 3D</button>
+</div>
+
+<!-- Basemap Panel -->
+<div id="basemapPanel">
+  <strong>Basemaps:</strong><br>
+  <button onclick="changeBasemap('osm')">OSM</button>
+  <button onclick="changeBasemap('carto')">Carto</button>
+  <button onclick="changeBasemap('esri')">ESRI</button>
+</div>
+
+<!-- Time & Shadow Controls -->
 <div id="controls">
   <label for="time">Time: <span id="timeLabel"></span></label><br>
   <input type="range" id="time" min="0" max="23" value="12"><br>
@@ -30,10 +37,9 @@
   <input type="range" id="date" min="1" max="365" value="180">
 </div>
 
-<!-- Leaflet & OSMBuildings -->
+<!-- Scripts -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.osmbuildings.org/classic/0.2.2b/OSMBuildings-Leaflet.js"></script>
 <script src="app.js"></script>
-
 </body>
 </html>
