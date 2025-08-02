@@ -1,11 +1,99 @@
-AI Integrated 3D Geo WebApp
+# 🗺️ 3D Pune City AI Web App
 
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=admin
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_DB=pune_city
+A full-stack geospatial platform for exploring Pune city in 3D using **Leaflet + OSMBuildings**, **FastAPI**, **PostGIS**, and **Pelias**. Supports location search, historical insights, and AI-powered spatial queries like "nearest hospital" or "temple within 500m".
 
+---
 
-csv Pune Data STore = http://opendata.punecorporation.org/Citizen/CitizenDatasets/Index?categoryId=37
+## 📁 Features
 
+* 🌐 3D Map UI with Leaflet + OSMBuildings
+* 🔍 Geocoder powered by **Pelias** with custom Pune data
+* 📜 Historical info panel (Wikipedia + AI summaries)
+* 🧠 AI assistant for spatial search queries (e.g., `nearest traffic choke point`, `temples in 1 km`, `history of Shaniwar Wada`)
+* 📡 Map click support for querying **nearby amenities**
+* 🛢️ Backend in **FastAPI** with spatial queries to **PostGIS**
+* 📂 15+ GeoJSON layers: roads, transport, worship places, traffic, POIs, water, etc.
+
+---
+
+## 🚀 How to Run Locally
+
+### 🔧 Requirements
+
+* Docker & Docker Compose
+* Git
+
+### 📦 Clone and Set Up
+
+```bash
+git clone https://github.com/your-username/3d-pune-city-ai-map.git
+cd 3d-pune-city-ai-map
+```
+
+### 🐳 Start with Docker Compose
+
+```bash
+docker-compose up --build
+```
+
+This will start:
+
+* PostgreSQL + PostGIS
+* FastAPI backend
+* Pelias geocoder (API, Elasticsearch, CSV Importer, Libpostal)
+
+### 🌍 Open Frontend
+
+Visit: `http://localhost:8000` to explore the 3D Pune city map.
+
+---
+
+## 🧱 Project Structure
+
+```
+├── backend/                # FastAPI app
+│   ├── main.py
+│   ├── models.py
+│   ├── routes/
+│   ├── db.py
+├── geojsons/              # Input layers (15+ categorized GeoJSON files)
+├── pelias/                # Custom Pelias setup (docker-compose + CSV data)
+│   ├── docker-compose.yml
+│   ├── csv-importer/
+├── frontend/              # HTML + Leaflet + JS + OSMBuildings
+├── docker-compose.yml     # Main service orchestration
+├── README.md
+└── LICENSE
+```
+
+---
+
+## 🗃️ Data Sources
+
+* OpenStreetMap (converted to GeoJSON)
+* MODIS Dynamic World
+* Wikipedia (for historical insights)
+* Custom CSV data (Pelias geocoder)
+
+---
+
+## ⚖️ License and Attribution
+
+This project uses:
+
+* 🧭 [Pelias](https://github.com/pelias/pelias) (MIT License)
+* 🗺️ [Leaflet](https://leafletjs.com) and [OSMBuildings](https://osmbuildings.org)
+* 🐍 FastAPI and Docker
+* 🌍 OpenStreetMap Data
+
+Make sure to retain attribution when using OSM, Pelias, and public datasets.
+
+---
+
+## 📫 Contact
+
+Nayankumar Appaso Veer
+M.Tech Geospatial Engineering, IIT Roorkee
+Email: \[[your.email@example.com](mailto:your.email@example.com)]
+
+For suggestions, contributions, or issues — feel free to raise an [Issue](https://github.com/your-repo/issues) or open a PR.
