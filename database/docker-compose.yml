@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgis:
+    image: postgis/postgis
+    container_name: pune_postgis
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: pune_city
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+      - ./database/Pune_City_Geojson:/geojson  # Optional: Mount your GeoJSONs
+
+volumes:
+  postgis_data:

@@ -5,7 +5,7 @@ import subprocess
 geojson_folder = os.path.join(os.getcwd(), 'Pune_City_Geojson')
 
 # Connection string for PostGIS database
-pg_connection = "PG:host=localhost port=5432 dbname=postgres user=postgres password=admin"
+pg_connection = "PG:host=localhost port=5432 dbname=pune_city user=postgres password=admin"
 
 # Loop through all GeoJSON files in the folder
 for filename in os.listdir(geojson_folder):
