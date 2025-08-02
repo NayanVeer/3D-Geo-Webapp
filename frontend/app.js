@@ -3,7 +3,7 @@ const map = L.map('map', {
   center: [18.5204, 73.8567], // Pune
   zoom: 15,
   minZoom: 15,
-  maxZoom: 24 // ✅ Allow higher zoom
+  maxZoom: 24 //higher zoom
 });
 
 L.control.zoom({ position: 'topright' }).addTo(map);
