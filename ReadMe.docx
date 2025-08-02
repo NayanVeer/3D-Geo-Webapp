@@ -97,3 +97,717 @@ M.Tech Geospatial Engineering, IIT Roorkee
 Email: \[[nayanveer6@gmail.com](mailto:nayanveer6@gmail.com)]
 
 For suggestions, contributions, or issues — feel free to raise an [Issue](https://github.com/your-repo/issues) or open a PR.
+
+
+
+
+# 🏙️ AI-Powered 3D Geospatial Web Application for Urban Intelligence
+## A Case Study of Pune City
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.68.0+-00a393.svg)](https://fastapi.tiangolo.com/)
+[![PostGIS](https://img.shields.io/badge/PostGIS-3.0+-336791.svg)](https://postgis.net/)
+
+An interactive, AI-enhanced 3D geospatial web platform for urban spatial analysis and semantic querying in Pune City. This application integrates real-time spatial queries, natural language search, and 3D visualization to empower citizens, urban planners, tourists, and researchers with intelligent geospatial interactions.
+
+![Application Architecture](architecture-diagram.png)
+
+---
+
+## 🎯 Project Objectives
+
+This project aims to create a **digital twin of Pune City** with the following key capabilities:
+
+- 🔍 **Spatial Search & Discovery** - Find nearby amenities and points of interest
+- 🏛️ **Wikipedia-Powered Insights** - Historical context and location summaries from Wikipedia
+- 🤖 **AI Integration** *(In Development)* - Natural language query processing using LLM models
+- 🏗️ **3D Urban Visualization** - Interactive building models with shadow simulation
+- 🔍 **Semantic Geocoding** - Custom-trained Pelias search engine for Pune-specific locations
+- 🗺️ **Multi-modal Interaction** - Support for both text queries and map-click interactions
+
+---
+
+## ✨ Key Features
+
+### 🔍 Intelligent Search & Discovery
+- **Spatial Proximity Search**: Find nearby amenities using PostGIS spatial queries
+- **Custom Geocoding**: Pelias-based search trained on Pune city data
+- **Fuzzy Place Search**: Find locations even with partial or vernacular names
+- **Interactive Map Queries**: Click anywhere to discover nearby points of interest
+
+### 🌆 3D Visualization & Simulation
+- **3D Buildings**: OSMBuildings integration with interactive lighting
+- **Shadow Simulation**: Dynamic day/time visualization for urban planning
+- **Multiple Basemaps**: OSM, CartoDB Light, ESRI Imagery, and more
+- **Thematic Layers**: Traffic, transport, religious sites, water bodies
+
+### 🏛️ Cultural & Historical Intelligence
+- **Wikipedia Integration**: Automated historical information retrieval and display
+- **Location Context**: Rich information panels for landmarks and heritage sites
+- **Cultural Insights**: Special focus on places like Shaniwarwada, Dagdusheth Temple
+- **Historical Summaries**: Structured presentation of place-specific information
+
+### 🗺️ Advanced Spatial Analysis
+- **PostGIS Spatial Queries**: ST_DWithin, ST_Distance, geodesic calculations
+- **Real-time Proximity Analysis**: Click anywhere to find nearest amenities
+- **Multi-layer Data Integration**: 15+ GeoJSON layers from PMC Datastore
+
+### 🚧 In Development
+- **Natural Language Processing**: AI-powered query interpretation using LLM models
+- **Conversational Interface**: ChatGPT integration for intelligent spatial queries
+- **Smart Recommendations**: AI-generated suggestions based on user context
+
+---
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **Leaflet.js** - Interactive mapping framework
+- **OSMBuildings** - 3D building visualization
+- **JavaScript/HTML/CSS** - UI and interactions
+
+### Backend
+- **FastAPI** - High-performance Python web framework
+- **SQLAlchemy** - ORM for database operations
+- **PostGIS** - Spatial database on Docker
+- **Wikipedia API** - Historical and cultural information retrieval
+- **BeautifulSoup** - Web scraping for content extraction
+- **OpenAI GPT** *(In Development)* - AI-powered query understanding
+
+### Geocoding & Search
+- **Pelias** - Custom geocoder with CSV importer
+- **Docker** - Containerized deployment
+- **Pune-specific training data** - Enhanced local search accuracy
+
+### Data Sources
+- **PMC Datastore** - 15+ GeoJSON layers (roads, traffic, transport, POIs)
+- **OpenStreetMap** - Building footprints and street data
+- **WhosOnFirst** - Administrative boundaries
+- **Wikipedia API** - Historical and cultural information
+
+---
+
+## 📁 Project Structure
+
+```
+pune-3d-geoai/
+├── backend/
+│   ├── main.py                 # FastAPI application entry point
+│   ├── models.py              # PostGIS spatial data models
+│   ├── database.py            # Database connection and config
+│   ├── requirements.txt       # Python dependencies
+│   └── routes/
+│       ├── __init__.py
+│       ├── buildings.py       # 3D building data endpoints
+│       ├── spatial.py         # Spatial query operations (nearby search)
+│       ├── geocoding.py       # Pelias integration
+│       ├── history.py         # Wikipedia integration (implemented)
+│       └── ai_chat.py         # OpenAI/LLM integration (in development)
+├── frontend/
+│   ├── index.html             # Main application interface
+│   ├── js/
+│   │   ├── app.js            # Core application logic
+│   │   ├── map.js            # Leaflet map initialization
+│   │   ├── ui.js             # User interface handlers
+│   │   └── ai.js             # AI interaction module
+│   ├── css/
+│   │   ├── style.css         # Main stylesheet
+│   │   └── responsive.css    # Mobile responsiveness
+│   └── assets/
+│       └── images/           # Application assets
+├── data/
+│   ├── geojson/              # Pune city GeoJSON layers
+│   ├── pelias/               # Geocoder training data
+│   └── scripts/              # Data processing utilities
+├── docker/
+│   ├── docker-compose.yml    # PostGIS and Pelias setup
+│   ├── Dockerfile.backend    # Backend container
+│   └── nginx.conf            # Frontend serving
+├── docs/
+│   ├── api.md                # API documentation
+│   ├── setup.md              # Detailed setup guide
+│   └── architecture.md       # System architecture
+└── README.md
+```
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Docker & Docker Compose** (for PostGIS and Pelias)
+- **Python 3.8+** with pip
+- **Node.js** (optional, for development server)
+- **Git** for cloning the repository
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/yourusername/pune-3d-geoai.git
+cd pune-3d-geoai
+```
+
+### 2. Set Up Spatial Database
+
+Start PostGIS using Docker:
+
+```bash
+cd docker
+docker-compose up -d postgis
+```
+
+Import GeoJSON data to PostGIS:
+
+```bash
+# Navigate to data directory
+cd ../data/scripts
+
+# Run import script for all layers
+./import_geojson.sh
+
+# Or manually import specific layers
+ogr2ogr -f "PostgreSQL" \
+  PG:"host=localhost user=postgres dbname=pune_gis password=admin" \
+  ../geojson/buildings.geojson \
+  -nln buildings -nlt MULTIPOLYGON -append -progress
+```
+
+### 3. Deploy Pelias Geocoder
+
+```bash
+# Start Pelias services
+docker-compose up -d pelias-api pelias-placeholder pelias-pip
+
+# Import Pune address data
+docker-compose run --rm pelias-csv-importer
+```
+
+### 4. Backend Setup
+
+```bash
+cd backend
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set environment variables
+export DATABASE_URL="postgresql://postgres:admin@localhost:5432/pune_gis"
+export WIKIPEDIA_API_URL="https://en.wikipedia.org/api/rest_v1"
+export PELIAS_URL="http://localhost:4000"
+# Note: OpenAI API key will be needed for future LLM integration
+# export OPENAI_API_KEY="your-openai-api-key"
+
+# Start FastAPI server
+uvicorn main:app --reload --port 8000
+```
+
+### 5. Frontend Deployment
+
+```bash
+cd frontend
+
+# Option 1: Simple HTTP server
+python -m http.server 3000
+
+# Option 2: Using Node.js (if available)
+npx serve -p 3000
+
+# Option 3: Using Docker
+docker build -t pune-3d-frontend .
+docker run -p 3000:80 pune-3d-frontend
+```
+
+### 6. Access the Application
+
+Open your browser and navigate to:
+- **Frontend**: `http://localhost:3000`
+- **Backend API**: `http://localhost:8000/docs` (Swagger UI)
+- **Pelias Geocoder**: `http://localhost:4000/v1/search`
+
+---
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env` file in the backend directory:
+
+```env
+# Database Configuration
+DATABASE_URL=postgresql://postgres:admin@localhost:5432/pune_gis
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=pune_gis
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=admin
+
+# AI Integration (Future)
+# OPENAI_API_KEY=your-openai-api-key-here
+# OPENAI_MODEL=gpt-3.5-turbo
+
+# Wikipedia Integration (Current)
+WIKIPEDIA_API_URL=https://en.wikipedia.org/api/rest_v1
+WIKIPEDIA_LANGUAGE=en
+
+# External Services
+PELIAS_URL=http://localhost:4000
+WIKIPEDIA_API_URL=https://en.wikipedia.org/api/rest_v1
+
+# Application Settings
+DEBUG=True
+LOG_LEVEL=INFO
+CORS_ORIGINS=["http://localhost:3000", "http://127.0.0.1:3000"]
+```
+
+### Database Configuration
+
+The application uses PostGIS for spatial operations. Key spatial functions utilized:
+
+```sql
+-- Distance calculations
+ST_DWithin(point1, point2, distance_meters)
+
+-- Nearest neighbor queries
+ST_Distance(geometry1, geometry2)
+
+-- GeoJSON output
+ST_AsGeoJSON(geometry)
+
+-- Spatial indexing
+CREATE INDEX idx_buildings_geom ON buildings USING GIST(geom);
+```
+
+---
+
+## 🎮 Usage Examples
+
+### Current Features (Implemented)
+
+```javascript
+// Location search using Pelias geocoder
+searchLocation("Fergusson College");
+
+// Find nearby amenities using spatial queries
+findNearby(lat, lon, "temple", 500); // 500m radius
+
+// Get historical information from Wikipedia
+getLocationHistory("Shaniwarwada");
+```
+
+### Planned Features (In Development)
+
+```javascript
+// Natural language queries (coming soon)
+"Find temples near Fergusson College"
+"Show me hospitals within 1 km of Shaniwarwada" 
+"Bus stops around Pune University"
+"Restaurants near MG Road"
+```
+
+### API Endpoints (Current Implementation)
+
+```bash
+# Search locations using Pelias
+GET /api/search?q=Fergusson%20College
+
+# Find nearby amenities (implemented)
+GET /api/nearby?lat=18.5204&lon=73.8567&type=temple&radius=500
+
+# Get historical information from Wikipedia (implemented) 
+GET /api/history?place=Shaniwarwada
+
+# 3D building data
+GET /api/buildings?bbox=73.8567,18.5204,73.8667,18.5304
+```
+
+### Future API Endpoints (In Development)
+
+```bash
+# Natural language query processing (planned)
+POST /api/chat
+{
+  "query": "Find temples near Fergusson College",
+  "context": {"lat": 18.5204, "lon": 73.8567}
+}
+```
+
+### Map Interactions
+
+1. **Search Box**: Type any location name or address
+2. **Click Query**: Click anywhere on the map to find nearby amenities
+3. **Layer Toggle**: Switch between different map layers
+4. **3D Controls**: Adjust building height and lighting
+5. **Time Slider**: Simulate shadows at different times of day
+
+---
+
+## 🔬 Technical Innovations
+
+### ✅ Implemented Features
+
+#### Spatial Proximity Analysis
+Advanced PostGIS spatial queries for real-time nearby amenity discovery with distance calculations and filtering.
+
+#### Custom Geocoder Integration  
+Pelias geocoder specifically trained on Pune city data for enhanced local search accuracy and vernacular name support.
+
+#### 3D Urban Visualization
+Real-time 3D building rendering with dynamic lighting and shadow simulation using OSMBuildings.
+
+#### Wikipedia-Powered Cultural Insights
+Automated scraping and structured presentation of historical context and cultural information for landmarks.
+
+#### Multi-modal Spatial Interaction
+Support for both text-based location search and map-click spatial analysis with contextual results.
+
+### 🚧 In Development
+
+#### Semantic Spatial Search
+Integration of LLM models (ChatGPT/OpenAI) for parsing natural language queries and converting them to spatial SQL operations.
+
+#### Conversational GIS Interface
+AI-powered chatbot capable of understanding complex spatial relationships and providing intelligent recommendations.
+
+#### Context-Aware Recommendations
+Machine learning integration for personalized location suggestions based on user behavior and preferences.
+
+---
+
+## 🗂️ Data Layers
+
+The application integrates multiple geospatial datasets:
+
+| Layer Type | Source | Features | Use Case |
+|------------|--------|----------|----------|
+| Buildings | PMC Datastore | 50,000+ footprints | 3D visualization, shadow analysis |
+| Roads | OpenStreetMap | Street network | Navigation, accessibility |
+| Traffic | PMC Traffic Dept | Traffic density | Urban planning |
+| Transport | PMPML | Bus stops, routes | Public transport |
+| Religious Sites | Community data | Temples, churches | Cultural mapping |
+| Healthcare | PMC Health | Hospitals, clinics | Emergency services |
+| Water Bodies | Survey of India | Rivers, lakes | Environmental analysis |
+| Administrative | WhosOnFirst | Ward boundaries | Governance |
+
+---
+
+## 🤖 Current Integration Status
+
+### ✅ Implemented: Wikipedia Integration
+
+The application currently uses Wikipedia's REST API for historical and cultural information:
+
+- **Automated Content Retrieval**: Fetches relevant Wikipedia articles for searched locations
+- **Content Processing**: BeautifulSoup-based extraction of key information
+- **Structured Display**: Organized presentation of historical context and cultural significance
+- **Multi-language Support**: Configurable language settings for Wikipedia content
+
+### Example Wikipedia Integration
+
+```python
+# Current implementation for historical insights
+location = "Shaniwarwada"
+→ Wikipedia API call + content extraction
+→ Returns: Historical significance, architectural details, visiting information
+→ Structured JSON response with formatted content
+```
+
+### 🚧 In Development: LLM Integration
+
+Future implementation will include:
+
+- **Natural Language Processing**: Convert user queries like "temples near college" to spatial operations
+- **Conversational Interface**: ChatGPT-powered assistant for complex spatial questions  
+- **Smart Query Understanding**: Context-aware interpretation of location-based requests
+- **Intelligent Recommendations**: AI-generated suggestions based on user preferences
+
+### Planned LLM Workflows
+
+```python
+# Future implementation for natural language queries
+user_query = "temples near Fergusson College"
+→ LLM parses: location="Fergusson College", amenity="temple", proximity="near"  
+→ Generates: ST_DWithin(temple_geom, college_geom, 1000)
+→ Returns: Contextual results with AI-generated descriptions
+```
+
+---
+
+## 🧪 Testing
+
+### Run Backend Tests
+
+```bash
+cd backend
+pytest tests/ -v --cov=.
+```
+
+### Test Spatial Queries
+
+```bash
+# Test PostGIS connection
+python -c "from database import engine; print('Database connected!')"
+
+# Test geocoding
+curl "http://localhost:4000/v1/search?text=Fergusson%20College"
+
+# Test spatial endpoint
+curl "http://localhost:8000/api/nearby?lat=18.5204&lon=73.8567&type=temple"
+```
+
+### Frontend Testing
+
+```javascript
+// Test map initialization
+console.log('Map initialized:', map.getCenter());
+
+// Test search functionality
+searchLocation('Pune University');
+
+// Test 3D rendering
+toggleBuildings(true);
+```
+
+---
+
+## 📊 Performance Optimization
+
+### Database Optimization
+
+```sql
+-- Spatial indexes for fast queries
+CREATE INDEX idx_buildings_geom ON buildings USING GIST(geom);
+CREATE INDEX idx_pois_geom ON points_of_interest USING GIST(geom);
+
+-- Composite indexes for common queries
+CREATE INDEX idx_amenity_geom ON amenities(amenity_type, geom);
+```
+
+### Caching Strategy
+
+- **Redis** for frequently accessed spatial queries
+- **Browser caching** for static GeoJSON layers
+- **CDN** for basemap tiles
+
+### Frontend Optimization
+
+- **Lazy loading** of 3D buildings based on zoom level
+- **Tile clustering** for dense point datasets
+- **Debounced search** to reduce API calls
+
+---
+
+## 🚀 Deployment
+
+### Production Deployment
+
+#### Using Docker Compose
+
+```yaml
+version: '3.8'
+services:
+  postgis:
+    image: postgis/postgis:13-master
+    environment:
+      POSTGRES_DB: pune_gis
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgis:5432/pune_gis
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      - postgis
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgis_data:
+```
+
+#### Cloud Deployment Options
+
+1. **AWS**: ECS + RDS PostGIS + CloudFront
+2. **Google Cloud**: Cloud Run + Cloud SQL + CDN
+3. **Azure**: Container Instances + Database for PostgreSQL
+4. **DigitalOcean**: App Platform + Managed Databases
+
+---
+
+## 🌟 Future Roadmap
+
+### Short Term (3-6 months)
+- [ ] **LLM Integration** - Complete ChatGPT/OpenAI integration for natural language queries
+- [ ] **Conversational Interface** - AI-powered chat interface for spatial questions
+- [ ] **Query Understanding** - Natural language to spatial SQL conversion
+- [ ] **Voice Interface** for spatial queries
+- [ ] **Mobile App** (React Native/Flutter)
+
+### Medium Term (6-12 months)
+- [ ] **Advanced AI Features** - Context-aware recommendations and smart suggestions
+- [ ] **Real-time Traffic Integration** using open APIs
+- [ ] **Route Planning** with public transport
+- [ ] **Augmented Reality** features for mobile
+- [ ] **Multi-city Support** (Mumbai, Bangalore, Delhi)
+
+### Long Term (1-2 years)
+- [ ] **Machine Learning** for traffic prediction and user behavior analysis
+- [ ] **Admin Dashboard** for data management
+- [ ] **Real-time IoT Data** integration
+- [ ] **Citizen Reporting** platform
+- [ ] **Smart City Dashboard** for administrators
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Here's how you can help:
+
+### Development Setup
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes and add tests
+4. Commit your changes: `git commit -m 'Add amazing feature'`
+5. Push to the branch: `git push origin feature/amazing-feature`
+6. Open a Pull Request
+
+### Contribution Guidelines
+
+- Follow Python PEP 8 style guide for backend code
+- Use ESLint configuration for frontend JavaScript
+- Add tests for new features
+- Update documentation for API changes
+- Include clear commit messages
+
+### Areas for Contribution
+
+- **Data Enhancement**: Adding new GeoJSON layers
+- **AI Improvements**: Better natural language processing
+- **UI/UX**: Mobile responsiveness and accessibility
+- **Performance**: Query optimization and caching
+- **Documentation**: Tutorials and API examples
+
+---
+
+## 📚 Documentation
+
+- **[API Documentation](docs/api.md)** - Complete REST API reference
+- **[Setup Guide](docs/setup.md)** - Detailed installation instructions
+- **[Architecture](docs/architecture.md)** - System design and components
+- **[Data Sources](docs/data.md)** - Information about datasets used
+- **[Deployment](docs/deployment.md)** - Production deployment guide
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### PostGIS Connection Error
+```bash
+# Check if PostGIS is running
+docker ps | grep postgis
+
+# Restart PostGIS container
+docker-compose restart postgis
+```
+
+#### Pelias Geocoder Not Working
+```bash
+# Check Pelias status
+curl http://localhost:4000/v1/search?text=test
+
+# Rebuild Pelias
+docker-compose down pelias-api
+docker-compose up -d pelias-api
+```
+
+#### 3D Buildings Not Loading
+```javascript
+// Check browser console for errors
+// Ensure OSMBuildings is properly loaded
+console.log(typeof OSMBuildings);
+```
+
+### Performance Issues
+
+- **Slow spatial queries**: Check if spatial indexes are created
+- **Memory issues**: Reduce the number of loaded GeoJSON features
+- **Network timeouts**: Implement proper caching mechanisms
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+```
+MIT License
+
+Copyright (c) 2025 Pune 3D GeoAI Project
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+```
+
+---
+
+## 🙏 Acknowledgments
+
+- **OpenStreetMap Contributors** for open geospatial data
+- **Pune Municipal Corporation** for city datasets
+- **OSMBuildings** for 3D visualization capabilities
+- **Leaflet Community** for the amazing mapping library
+- **PostGIS Team** for spatial database excellence
+- **FastAPI** for the high-performance web framework
+- **OpenAI** for AI capabilities
+
+---
+
+## 📞 Contact & Support
+
+- **Project Maintainer**: [Your Name](mailto:your.email@example.com)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/pune-3d-geoai/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/pune-3d-geoai/discussions)
+- **Documentation**: [Project Wiki](https://github.com/yourusername/pune-3d-geoai/wiki)
+
+---
+
+## 📊 Project Stats
+
+![GitHub stars](https://img.shields.io/github/stars/yourusername/pune-3d-geoai)
+![GitHub forks](https://img.shields.io/github/forks/yourusername/pune-3d-geoai)
+![GitHub issues](https://img.shields.io/github/issues/yourusername/pune-3d-geoai)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/yourusername/pune-3d-geoai)
+
+---
+
+**Built with ❤️ for Smart Cities and Open Data**
+
+*Making urban geospatial intelligence accessible to everyone.*
