@@ -26,7 +26,7 @@ A full-stack geospatial platform for exploring Pune city in 3D using **Leaflet +
 ### 📦 Clone and Set Up
 
 ```bash
-git clone https://github.com/your-username/3d-pune-city-ai-map.git
+git clone https://github.com/NayanVeer/3d-geo-webapp.git
 cd 3d-pune-city-ai-map
 ```
 
@@ -70,7 +70,9 @@ Visit: `http://localhost:8000` to explore the 3D Pune city map.
 
 ## 🗃️ Data Sources
 
-* OpenStreetMap (converted to GeoJSON)
+* OpenStreetMap- For Basemaps named CartoDB and OSM.
+* OSm Buildings- For 3D Buildings layer rendering.
+* ESRI- For rendering Basemap named World Imagery
 * Whos on first
 * Wikipedia (for historical insights)
 * Custom CSV data (Pelias geocoder) using PMC Open data
