@@ -194,6 +194,7 @@ if (!location) {
   }
 
   const url = `http://localhost:8000/api/nearby?lat=${location.lat}&lon=${location.lon}&type=${keyword}&distance=1000`;
+  const res = await fetch(url);
   const data = await res.json();
 
   if (!data.features || data.features.length === 0) {
