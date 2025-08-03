@@ -42,5 +42,5 @@ Nayankumar Appaso Veer<br/>
 M.Tech Geospatial Engineering, IIT Roorkee<br/>
 Email: mailto:nayanveer6@gmail.com<br/>
 
-For suggestions, contributions, or issues — feel free to raise an [Issue]([https://github.com/NayanVeer/3D-Geo-Webapp/issues](https://github.com/NayanVeer/3D-Geo-Webapp/issues)) or open a PR.
+For suggestions, contributions, or issues — feel free to raise an [Issue]([https://github.com/NayanVeer/3D-Geo-Webapp/issues]) or open a PR.
 
