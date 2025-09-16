@@ -3,7 +3,8 @@ const map = L.map('map', {
   center: [18.5204, 73.8567], // Pune
   zoom: 15,
   minZoom: 15,
-  maxZoom: 24 //higher zoom
+  maxZoom: 24,
+  zoomControl: false //higher zoom
 });
 
 L.control.zoom({ position: 'topright' }).addTo(map);
@@ -17,7 +18,7 @@ const baseLayers = {
     attribution: '© CartoDB'
   }),
   esri: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: '© ESRI'
+    attribution: 'Sources: Esri, DigitalGlobe, GeoEye, i-cubed, USDA FSA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, swisstopo, and the GIS User Community'
   })
 };
 
@@ -179,6 +180,7 @@ document.getElementById('nearby-btn').addEventListener('click', async () => {
 }
 
 const location = lastLatLng || clickedLatLng;
+// const location = clickedLatLng || lastLatLng;
 
 if (!location) {
   alert('Please search or click on the map to set a location.');
