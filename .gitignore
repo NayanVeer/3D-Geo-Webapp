@@ -8,3 +8,6 @@ venv/
 
 # VS Code settings
 .vscode/
+
+# Ignore environment variables
+.env

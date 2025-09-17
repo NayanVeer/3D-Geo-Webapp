@@ -2,7 +2,10 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 from routes import nearby, history
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 
 # ----------------------------
@@ -60,7 +63,7 @@ async def geocode(query: str):
 from routes import (
     buildings, landuse, place_points, place_polygon, places, railway, roads,
     traffic_point, traffic_polygon, transport_stops, water_type, waterway,
-    worship_places, spatial_query, nearby
+    worship_places, spatial_query, nearby, ai_search
 )
 
 app.include_router(buildings.router)
@@ -79,3 +82,4 @@ app.include_router(worship_places.router)
 app.include_router(spatial_query.router)
 app.include_router(nearby.router)
 app.include_router(history.router)
+app.include_router(ai_search.router)
