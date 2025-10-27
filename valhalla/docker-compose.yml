@@ -1,0 +1,20 @@
+services:
+  valhalla:
+    image: ghcr.io/gis-ops/docker-valhalla/valhalla:latest
+    container_name: valhalla
+    restart: unless-stopped
+    ports:
+      - 8002:8002
+    volumes:
+      - ./valhalla_tiles:/custom_files/valhalla_tiles:rw
+      - ./valhalla_config:/custom_files/valhalla_config:ro
+    environment:
+      SERVE_TILES: 'false'
+      BUILD_ADMIN: 'false'
+    mem_limit: 512m
+    cpus: 0.8
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:8002/status || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3

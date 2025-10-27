@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
-from routes import nearby, history
+from routes import nearby, history, valhalla
 from dotenv import load_dotenv
 import os
 
@@ -83,3 +83,4 @@ app.include_router(spatial_query.router)
 app.include_router(nearby.router)
 app.include_router(history.router)
 app.include_router(ai_search.router)
+app.include_router(valhalla.router)

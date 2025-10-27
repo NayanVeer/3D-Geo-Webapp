@@ -10,10 +10,9 @@
 </head>
 <body>
 
-  <!-- 🌍 Map -->
   <div id="map"></div>
 
-  <!-- 🔍 Top Search Bar -->
+  <!-- Top Search Bar -->
   <div id="search-container">
     <input type="text" id="search-input" placeholder="Search location...">
     <input type="text" id="keyword-input" placeholder="What are you looking for? e.g. temple, hospital">
@@ -22,35 +21,22 @@
     <button id="journey-button" class="journey-btn">🚗 Start Journey</button>
     <button id="exit-journey-button" class="journey-btn" style="display:none;">✖ Exit Journey</button>
   </div>
+  </div>
 
   <!-- 🧠 Sidebar: History Panel -->
-  <div id="history-panel" style="display:none;">
+  <div id="history-panel" style="display: none;">
     <h3 id="hist-title"></h3>
-    <img id="hist-img" alt="Historical image" style="max-width:100%; display:none;">
+    <img 
+      id="hist-img"
+      alt="Historical image of the selected location"
+      title="Historical image"
+      style="max-width: 100%; display: none;"
+    >
     <p id="hist-text"></p>
     <a id="hist-link" target="_blank" rel="noopener noreferrer">Read more →</a>
   </div>
 
-  <!-- 🚗 Journey Panel (hidden until "Start Journey") -->
-  <div id="journey-panel" class="journey-panel" style="display:none;">
-    <h3>🗺️ Plan Your Journey</h3>
-
-    <label for="journey-start">Start Location:</label>
-    <input type="text" id="journey-start" placeholder="Search or click map...">
-
-    <label for="journey-end">End Location:</label>
-    <input type="text" id="journey-end" placeholder="Search or click map...">
-
-    <div style="margin-top:8px; display:flex; gap:8px;">
-      <button id="journey-get">Get Route</button>
-      <button id="journey-clear">Clear</button>
-    </div>
-    <small style="display:block; margin-top:5px; color:#777;">
-      Tip: Click on a field, then click the map to set a point, or type to search with Pelias.
-    </small>
-  </div>
-
-  <!-- 🧭 Floating Controls -->
+  <!-- Floating Controls -->
   <div id="floating-buttons">
     <button onclick="toggleBasemapPanel()">🗺️ Basemap</button>
     <button onclick="toggle3DBuildings()">🏙️ 3D</button>
@@ -64,18 +50,26 @@
     <button onclick="changeBasemap('esri')">ESRI</button>
   </div>
 
-  <!-- ☀️ Time & Shadow Controls -->
+  <!-- Time & Shadow Controls -->
   <div id="controls">
     <label for="time">Time: <span id="timeLabel"></span></label><br>
     <input type="range" id="time" min="0" max="23" value="12"><br>
     <label for="date">Day: <span id="dateLabel"></span></label><br>
     <input type="range" id="date" min="1" max="365" value="180">
   </div>
+    <!-- 🚗 Journey Panel -->
+  <div id="journey-panel" class="journey-panel" style="display:none;">
+    <h3>Start Journey</h3>
+    <label for="journey-start">Start Location:</label>
+    <input id="journey-start" placeholder="Search or click map..." />
 
-  <!-- 🚦 Maneuvers Panel (for route instructions) -->
-  <div id="maneuvers-panel" class="maneuvers-panel" style="display:none;">
-    <h3>Directions</h3>
-    <ol id="maneuvers-list"></ol>
+    <label for="journey-end">End Location:</label>
+    <input id="journey-end" placeholder="Search or click map..." />
+
+    <div style="margin-top:8px; display:flex; gap:8px;">
+      <button id="journey-get">Get Route</button>
+      <button id="journey-cancel">Cancel</button>
+    </div>
   </div>
 
   <!-- Scripts -->
@@ -83,6 +77,5 @@
   <script src="https://cdn.osmbuildings.org/classic/0.2.2b/OSMBuildings-Leaflet.js"></script>
   <script src="app.js"></script>
   <script src="routing.js"></script>
-
 </body>
 </html>
