@@ -13,47 +13,75 @@
   <!-- 🌍 Map -->
   <div id="map"></div>
 
-  <!-- 🔍 Top Search Bar -->
-  <div id="search-container">
-    <input type="text" id="search-input" placeholder="Search location...">
-    <input type="text" id="keyword-input" placeholder="What are you looking for? e.g. temple, hospital">
-    <button id="nearby-btn">🔍 Nearby</button>
-    <button id="history-btn">📜 History</button>
-    <button id="journey-button" class="journey-btn">🚗 Start Journey</button>
-    <button id="exit-journey-button" class="journey-btn" style="display:none;">✖ Exit Journey</button>
-  </div>
-
-  <!-- 🧠 Sidebar: History Panel -->
-  <div id="history-panel" style="display:none;">
-    <h3 id="hist-title"></h3>
-    <img id="hist-img" alt="Historical image" style="max-width:100%; display:none;">
-    <p id="hist-text"></p>
-    <a id="hist-link" target="_blank" rel="noopener noreferrer">Read more →</a>
-  </div>
-
-  <!-- 🚗 Journey Panel (hidden until "Start Journey") -->
-  <div id="journey-panel" class="journey-panel" style="display:none;">
-    <h3>🗺️ Plan Your Journey</h3>
-
-    <label for="journey-start">Start Location:</label>
-    <input type="text" id="journey-start" placeholder="Search or click map...">
-
-    <label for="journey-end">End Location:</label>
-    <input type="text" id="journey-end" placeholder="Search or click map...">
-
-    <div style="margin-top:8px; display:flex; gap:8px;">
-      <button id="journey-get">Get Route</button>
-      <button id="journey-clear">Clear</button>
+  <!-- 📍 Left Side Panel -->
+  <div class="left-panel">
+    <!-- Top buttons -->
+    <div class="left-panel__buttons">
+      <button id="search-tab-btn" class="panel-tab-btn active">🔍 Search</button>
+      <button id="nearby-tab-btn" class="panel-tab-btn">📍 Nearby</button>
+      <button id="history-tab-btn" class="panel-tab-btn">📜 History</button>
+      <button id="journey-tab-btn" class="panel-tab-btn">🚗 Journey</button>
     </div>
-    <small style="display:block; margin-top:5px; color:#777;">
-      Tip: Click on a field, then click the map to set a point, or type to search with Pelias.
-    </small>
+
+    <!-- Search Section -->
+    <div id="search-section" class="panel-section active">
+      <input type="text" id="search-input" placeholder="Search location...">
+      <div id="results-list-container">
+        <!-- results-list will be appended here -->
+      </div>
+    </div>
+
+    <!-- Nearby Section -->
+    <div id="nearby-section" class="panel-section">
+      <input type="text" id="keyword-input" placeholder="e.g. temple, hospital, bus">
+      <button id="nearby-btn" class="panel-action-btn">🔍 Search Nearby</button>
+      <p class="panel-hint">Click on map or search a location first</p>
+    </div>
+
+    <!-- History Section -->
+    <div id="history-section" class="panel-section">
+      <div id="history-panel">
+        <h3 id="hist-title">No history selected</h3>
+        <img id="hist-img" alt="Historical image" style="max-width:100%; display:none;">
+        <p id="hist-text">Search for a location to see its history.</p>
+        <a id="hist-link" target="_blank" rel="noopener noreferrer" style="display:none;">Read more →</a>
+      </div>
+    </div>
+
+    <!-- Journey Section -->
+    <div id="journey-section" class="panel-section left-panel__journey">
+      <h3>🗺️ Plan Your Journey</h3>
+
+      <label for="journey-start">Start Location:</label>
+      <input type="text" id="journey-start" placeholder="Search or click map...">
+
+      <label for="journey-end">End Location:</label>
+      <input type="text" id="journey-end" placeholder="Search or click map...">
+
+      <label for="transport-mode">Transport Mode:</label>
+      <select id="transport-mode" class="transport-select">
+        <option value="car">🚗 Car</option>
+        <option value="walking">🚶 Walking</option>
+        <option value="bicycle">🚴 Bicycle</option>
+        <option value="bus">🚌 Bus</option>
+        <option value="rickshaw">🛺 Rickshaw</option>
+        <option value="cycle">🚲 Cycle</option>
+      </select>
+
+      <div class="journey-actions">
+        <button id="journey-get" class="panel-action-btn">Get Route</button>
+        <button id="journey-clear" class="panel-action-btn secondary">Clear</button>
+      </div>
+      <small class="panel-hint">
+        Tip: Click on a field, then click the map to set a point, or type to search.
+      </small>
+    </div>
   </div>
 
-  <!-- 🧭 Floating Controls -->
+  <!-- 🧭 Top-Right Floating Controls (3D & Basemap) -->
   <div id="floating-buttons">
-    <button onclick="toggleBasemapPanel()">🗺️ Basemap</button>
-    <button onclick="toggle3DBuildings()">🏙️ 3D</button>
+    <button onclick="toggle3DBuildings()" aria-label="Toggle 3D buildings">🏙️ 3D</button>
+    <button onclick="toggleBasemapPanel()" aria-label="Change basemap">🗺️ Basemap</button>
   </div>
 
   <!-- Basemap Panel -->

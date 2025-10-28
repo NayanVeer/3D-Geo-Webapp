@@ -1,5 +1,6 @@
 // routing.js
 // Handles Valhalla route drawing, clearing, and map interaction
+// Updated to support transport mode selection from UI
 
 (function () {
   const routingState = {
@@ -85,7 +86,7 @@
   }
 
   // -----------------------------
-  // Fetch Route from Backend
+  // Fetch Route from Backend (with transport mode support)
   // -----------------------------
   async function requestRouteFromBackend(start, end, costing = 'auto') {
     const url = 'http://localhost:8000/api/valhalla/route/geojson';
@@ -101,14 +102,12 @@
     return res.json();
   }
 
-  async function getAndDrawRoute(start, end) {
+  async function getAndDrawRoute(start, end, costing = 'auto') {
     try {
-      const btn =
-        document.getElementById('btn-get-route') ||
-        document.getElementById('journey-get');
+      const btn = document.getElementById('journey-get');
       if (btn) btn.disabled = true;
 
-      const data = await requestRouteFromBackend(start, end);
+      const data = await requestRouteFromBackend(start, end, costing);
       if (!data.geojson) throw new Error('No GeoJSON returned');
 
       drawGeoJSON(data.geojson);
@@ -118,9 +117,7 @@
       alert('Routing error: ' + err.message);
       console.error(err);
     } finally {
-      const btn =
-        document.getElementById('btn-get-route') ||
-        document.getElementById('journey-get');
+      const btn = document.getElementById('journey-get');
       if (btn) btn.disabled = false;
     }
   }
@@ -146,7 +143,20 @@
         6
       )}, ${lon.toFixed(6)}`;
       console.log('End set – drawing route');
-      getAndDrawRoute(startPoint, endPoint);
+      
+      // Get transport mode from UI
+      const transportMode = document.getElementById('transport-mode').value;
+      const costingMap = {
+        'car': 'auto',
+        'walking': 'pedestrian',
+        'bicycle': 'bicycle',
+        'bus': 'transit',
+        'rickshaw': 'auto',
+        'cycle': 'bicycle'
+      };
+      const costing = costingMap[transportMode] || 'auto';
+      
+      getAndDrawRoute(startPoint, endPoint, costing);
       startPoint = endPoint = null;
     }
   };
@@ -165,7 +175,7 @@
   }
 
   // -----------------------------
-  // Event Listener for app.js “drawRoute”
+  // Event Listener for app.js "drawRoute"
   // -----------------------------
   window.addEventListener('drawRoute', e => {
     const { geojson, start, end } = e.detail;

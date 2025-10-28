@@ -63,6 +63,28 @@ document.getElementById('date').addEventListener('input', e => {
 updateDateTime();
 
 // ---------------------------
+// LEFT PANEL TAB SWITCHING
+// ---------------------------
+const tabButtons = document.querySelectorAll('.panel-tab-btn');
+const panelSections = document.querySelectorAll('.panel-section');
+
+tabButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Remove active from all tabs and sections
+    tabButtons.forEach(b => b.classList.remove('active'));
+    panelSections.forEach(s => s.classList.remove('active'));
+    
+    // Add active to clicked tab
+    btn.classList.add('active');
+    
+    // Show corresponding section
+    const tabId = btn.id.replace('-tab-btn', '-section');
+    const section = document.getElementById(tabId);
+    if (section) section.classList.add('active');
+  });
+});
+
+// ---------------------------
 // Main Search Bar
 // ---------------------------
 let selectedIndex = -1;
@@ -70,11 +92,14 @@ let lastLatLng = null; // last geocoded point
 const searchInput = document.getElementById('search-input');
 const resultList = document.createElement('ul');
 resultList.id = 'results-list';
-document.getElementById('search-container').appendChild(resultList);
+document.getElementById('results-list-container').appendChild(resultList);
 
 searchInput.addEventListener('input', async function () {
   const query = this.value.trim();
-  if (query.length < 2) return;
+  if (query.length < 2) {
+    resultList.innerHTML = '';
+    return;
+  }
 
   // Pelias autocomplete
   const res = await fetch(`http://localhost:4000/v1/autocomplete?text=${encodeURIComponent(query)}`);
@@ -95,14 +120,15 @@ searchInput.addEventListener('input', async function () {
         .bindPopup(`<b>${feature.properties.label}</b>`).openPopup();
       resultList.innerHTML = '';
       searchInput.value = feature.properties.label;
+      
+      // Auto-switch to history tab and show history
       showPlaceHistory(feature.properties.label);
-        // 👇 If routing mode is active, use this as start or end point
-            // 👇 If journey mode is active, use this as start or end point
+      
+      // If journey mode is active, use this as start or end point
       if (journeyActive && window.setJourneyPoint) {
         window.setJourneyPoint(lat, lon, feature.properties.label);
         return; // stop normal flow
       }
-
     });
     resultList.appendChild(li);
   });
@@ -113,8 +139,10 @@ async function showPlaceHistory(placeName) {
     const res = await fetch(`http://localhost:8000/api/history?place=${encodeURIComponent(placeName)}`);
     const data = await res.json();
 
-    // Show history panel
-    document.getElementById('history-panel').style.display = 'block';
+    // Switch to history tab
+    document.getElementById('history-tab-btn').click();
+
+    // Update history panel content
     document.getElementById('hist-title').innerText = data.title || 'No title found';
     document.getElementById('hist-text').innerText = data.description || 'No history available.';
     document.getElementById('hist-link').href = data.url || '#';
@@ -128,7 +156,7 @@ async function showPlaceHistory(placeName) {
     }
   } catch (err) {
     console.error('Error in showPlaceHistory:', err);
-    document.getElementById('history-panel').style.display = 'block';
+    document.getElementById('history-tab-btn').click();
     document.getElementById('hist-title').innerText = 'No history found';
     document.getElementById('hist-text').innerText = '';
     document.getElementById('hist-img').style.display = 'none';
@@ -263,14 +291,12 @@ map.on('click', async function (e) {
     return;
   }
 
-  // 3) Default (no mode active): set a simple clicked marker for manual use (like your previous click)
+  // 3) Default (no mode active): set a simple clicked marker for manual use
   clickedLatLng = e.latlng;
   if (window.clickMarker) map.removeLayer(window.clickMarker);
   window.clickMarker = L.marker(clickedLatLng).addTo(map)
     .bindPopup("Clicked location set. Use Nearby or search to continue.").openPopup();
 });
-
-
 
 // ---------------------------
 // AI Search
@@ -305,76 +331,31 @@ async function performAiSearch(query) {
 // 🚗 Valhalla Journey Mode (Pelias + Map Click Integration)
 // ---------------------------
 
-const startJourneyBtn = document.getElementById('journey-button');
-const exitJourneyBtn = document.getElementById('exit-journey-button');
-const journeyPanel = document.getElementById('journey-panel');
 const journeyStart = document.getElementById('journey-start');
 const journeyEnd = document.getElementById('journey-end');
 const journeyGet = document.getElementById('journey-get');
-const journeyCancel = document.getElementById('journey-cancel');
+const journeyCancel = document.getElementById('journey-clear');
 
 let journeyActive = false;
 let selectedField = null; // "start" | "end"
 let journeyPoints = { start: null, end: null };
 
 // ---------------------------
-// Start Journey Mode
+// Journey tab activation
 // ---------------------------
-startJourneyBtn.addEventListener('click', () => {
+document.getElementById('journey-tab-btn').addEventListener('click', () => {
   journeyActive = true;
-  journeyPanel.style.display = 'block';
-  startJourneyBtn.style.display = 'none';
-  exitJourneyBtn.style.display = 'inline-block';
   selectedField = null;
   journeyPoints = { start: null, end: null };
-
+  
   if (window.routing && window.routing.clearRouting) window.routing.clearRouting();
-  alert('🚗 Journey mode activated!\nClick inside Start or End box, then click map or type to search.');
-  journeyStart.focus();
 });
-
-// ---------------------------
-// Exit Journey Mode
-// ---------------------------
-exitJourneyBtn.addEventListener('click', () => {
-  journeyActive = false;
-  journeyPanel.style.display = 'none';
-  exitJourneyBtn.style.display = 'none';
-  startJourneyBtn.style.display = 'inline-block';
-  selectedField = null;
-  journeyPoints = { start: null, end: null };
-
-  // 🧹 Clear markers and route when exiting journey
-  if (window.routing && typeof window.routing.clearRouting === 'function') {
-    window.routing.clearRouting();
-  }
-  if (window.clearJourney) window.clearJourney();
-
-  alert('❌ Journey mode exited and route cleared.');
-});
-
 
 // ---------------------------
 // When user focuses on input box
 // ---------------------------
 journeyStart.addEventListener('focus', () => selectedField = 'start');
 journeyEnd.addEventListener('focus', () => selectedField = 'end');
-
-// ---------------------------
-// Map click sets whichever field is active
-// ---------------------------
-map.on('click', e => {
-  if (!journeyActive || !selectedField) return;
-  const { lat, lng } = e.latlng;
-
-  if (selectedField === 'start') {
-    journeyPoints.start = { lat, lon: lng };
-    journeyStart.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-  } else if (selectedField === 'end') {
-    journeyPoints.end = { lat, lon: lng };
-    journeyEnd.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-  }
-});
 
 // ---------------------------
 // Pelias geocode for typing search (auto sets start/end)
@@ -403,7 +384,7 @@ journeyStart.addEventListener('input', () => geocodeJourneyInput(journeyStart, '
 journeyEnd.addEventListener('input', () => geocodeJourneyInput(journeyEnd, 'end'));
 
 // ---------------------------
-// Request route from FastAPI Valhalla proxy
+// Request route from FastAPI Valhalla proxy with transport mode
 // ---------------------------
 journeyGet.addEventListener('click', async () => {
   if (!journeyPoints.start || !journeyPoints.end) {
@@ -411,13 +392,25 @@ journeyGet.addEventListener('click', async () => {
     return;
   }
 
+  // Get selected transport mode and map to Valhalla costing
+  const transportMode = document.getElementById('transport-mode').value;
+  const costingMap = {
+    'car': 'auto',
+    'walking': 'pedestrian',
+    'bicycle': 'bicycle',
+    'bus': 'transit',
+    'rickshaw': 'auto',
+    'cycle': 'bicycle'
+  };
+  const costing = costingMap[transportMode] || 'auto';
+
   try {
     const res = await fetch('http://localhost:8000/api/valhalla/route/geojson', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         locations: [journeyPoints.start, journeyPoints.end],
-        costing: 'auto'
+        costing: costing
       })
     });
 
@@ -443,7 +436,7 @@ journeyGet.addEventListener('click', async () => {
 });
 
 // ---------------------------
-// Cancel Journey (stays in mode, just resets inputs)
+// Clear Journey (resets inputs and route)
 // ---------------------------
 journeyCancel.addEventListener('click', () => {
   // Clear input fields
@@ -454,23 +447,17 @@ journeyCancel.addEventListener('click', () => {
   selectedField = null;
   journeyPoints = { start: null, end: null };
 
-  // Hide journey panel
-  journeyPanel.style.display = 'none';
-
-  // 🔹 Clear route + markers (from routing.js)
+  // Clear route + markers (from routing.js)
   if (window.routing && typeof window.routing.clearRouting === 'function') {
     window.routing.clearRouting();
   }
 
-  // 🔹 Also call clearJourney() to reset any internal state
+  // Also call clearJourney() to reset any internal state
   if (window.clearJourney) window.clearJourney();
 
-  // Reset journey mode flags
-  journeyActive = false;
+  // Reset journey mode flag
   window.routingModeActive = false;
-
 });
-
 
 // ---------------------------
 // Initialize routing UI (if routing.js present)
@@ -478,7 +465,3 @@ journeyCancel.addEventListener('click', () => {
 if (window.routing && typeof window.routing.initRoutingUI === 'function') {
   window.routing.initRoutingUI();
 }
-
-
-
-
