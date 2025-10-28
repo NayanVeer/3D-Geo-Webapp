@@ -238,23 +238,42 @@ document.getElementById('nearby-btn').addEventListener('click', async () => {
   const keyword = document.getElementById('keyword-input').value.trim();
   if (!keyword) { alert('Please enter a keyword like temple, bus, hospital'); return; }
 
-  const location = lastLatLng || clickedLatLng;
-  if (!location) { alert('Please search or click on the map to set a location.'); return; }
+  // FIX: Use fallback chain: lastLatLng → clickedLatLng → map center
+  let location = lastLatLng || clickedLatLng || map.getCenter();
+  const lat = location.lat;
+  // Handle both .lon (from Pelias) and .lng (from Leaflet click)
+  const lon = location.lon || location.lng;
+
+  if (!lat || !lon) {
+    alert('Unable to determine location. Please search or click on the map first.');
+    return;
+  }
+
+  console.log(`Nearby search at: lat=${lat}, lon=${lon}, keyword=${keyword}`); // Debug log
 
   window.nearbyLayer.clearLayers();
 
-  const url = `http://localhost:8000/api/nearby?lat=${location.lat}&lon=${location.lon}&type=${keyword}&distance=1000`;
-  const res = await fetch(url);
-  const data = await res.json();
-  if (!data.features || data.features.length === 0) { alert("No results found."); return; }
+  try {
+    const url = `http://localhost:8000/api/nearby?lat=${lat}&lon=${lon}&type=${encodeURIComponent(keyword)}&distance=1000`;
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    if (!data.features || data.features.length === 0) { 
+      alert("No results found."); 
+      return; 
+    }
 
-  data.features.forEach(f => {
-    const geom = JSON.parse(f.geometry);
-    const layer = L.geoJSON(geom).bindPopup(`<b>${f.name || 'Unnamed'}</b><br>${f.fclass || ''}<br>Source: ${f.source}`);
-    window.nearbyLayer.addLayer(layer);
-  });
+    data.features.forEach(f => {
+      const geom = JSON.parse(f.geometry);
+      const layer = L.geoJSON(geom).bindPopup(`<b>${f.name || 'Unnamed'}</b><br>${f.fclass || ''}<br>Source: ${f.source}`);
+      window.nearbyLayer.addLayer(layer);
+    });
 
-  alert(data.message);
+    alert(data.message || `Found ${data.features.length} nearby results`);
+  } catch (err) {
+    console.error('Nearby search error:', err);
+    alert('Nearby search failed: ' + err.message);
+  }
 });
 
 // Nearby Clear button handler
@@ -368,6 +387,7 @@ const journeyCancel = document.getElementById('journey-clear');
 let journeyActive = false;
 let selectedField = null; // "start" | "end"
 let journeyPoints = { start: null, end: null };
+let journeyInputMarkers = []; // Track markers created during journey input
 
 // ---------------------------
 // Journey tab activation
@@ -399,10 +419,14 @@ async function geocodeJourneyInput(input, field) {
       const [lon, lat] = data.features[0].geometry.coordinates;
       journeyPoints[field] = { lat, lon };
       map.setView([lat, lon], 17);
-      L.marker([lat, lon])
+      
+      // FIX: Track the marker so we can remove it later
+      const marker = L.marker([lat, lon])
         .addTo(map)
         .bindPopup(`${field === 'start' ? 'Start' : 'End'}: ${data.features[0].properties.label}`)
         .openPopup();
+      
+      journeyInputMarkers.push(marker);
     }
   } catch (err) {
     console.error('Pelias geocode failed:', err);
@@ -475,6 +499,10 @@ journeyCancel.addEventListener('click', () => {
   // Reset selection and journey data
   selectedField = null;
   journeyPoints = { start: null, end: null };
+
+  // FIX: Clear markers created during input typing
+  journeyInputMarkers.forEach(marker => map.removeLayer(marker));
+  journeyInputMarkers = [];
 
   // Clear route + markers (from routing.js)
   if (window.routing && typeof window.routing.clearRouting === 'function') {
