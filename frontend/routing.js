@@ -124,6 +124,7 @@
 
   // -----------------------------
   // Map Click Routing (if user clicks)
+  // MODIFIED: Removed auto-route when both points are set
   // -----------------------------
   let startPoint = null;
   let endPoint = null;
@@ -142,22 +143,11 @@
       document.getElementById('journey-end').value = `${lat.toFixed(
         6
       )}, ${lon.toFixed(6)}`;
-      console.log('End set – drawing route');
+      console.log('End set - route will be drawn when "Get Route" is clicked');
       
-      // Get transport mode from UI
-      const transportMode = document.getElementById('transport-mode').value;
-      const costingMap = {
-        'car': 'auto',
-        'walking': 'pedestrian',
-        'bicycle': 'bicycle',
-        'bus': 'transit',
-        'rickshaw': 'auto',
-        'cycle': 'bicycle'
-      };
-      const costing = costingMap[transportMode] || 'auto';
-      
-      getAndDrawRoute(startPoint, endPoint, costing);
-      startPoint = endPoint = null;
+      // REMOVED: Auto-route invocation
+      // Route will only be drawn when user clicks "Get Route" button
+      // startPoint and endPoint remain set for the button handler to use
     }
   };
 
@@ -193,3 +183,8 @@
     getAndDrawRoute
   };
 })();
+
+
+
+
+

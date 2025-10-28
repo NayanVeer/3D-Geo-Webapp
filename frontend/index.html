@@ -29,17 +29,20 @@
       <div id="results-list-container">
         <!-- results-list will be appended here -->
       </div>
+      <button id="search-clear-btn" class="panel-action-btn secondary">Clear Search</button>
     </div>
 
     <!-- Nearby Section -->
     <div id="nearby-section" class="panel-section">
       <input type="text" id="keyword-input" placeholder="e.g. temple, hospital, bus">
-      <button id="nearby-btn" class="panel-action-btn">🔍 Search Nearby</button>
+      <button id="nearby-btn" class="panel-action-btn">📍 Search Nearby</button>
+      <button id="nearby-clear-btn" class="panel-action-btn secondary">Clear Nearby</button>
       <p class="panel-hint">Click on map or search a location first</p>
     </div>
 
     <!-- History Section -->
     <div id="history-section" class="panel-section">
+      <button id="hist-btn" class="panel-action-btn">View History</button>
       <div id="history-panel">
         <h3 id="hist-title">No history selected</h3>
         <img id="hist-img" alt="Historical image" style="max-width:100%; display:none;">
@@ -114,3 +117,7 @@
 
 </body>
 </html>
+
+
+
+

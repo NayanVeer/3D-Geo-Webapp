@@ -19,6 +19,10 @@ const baseLayers = {
 };
 baseLayers.osm.addTo(map);
 
+// Initialize dedicated layer groups for each service
+window.searchLayer = L.layerGroup().addTo(map);
+window.nearbyLayer = L.layerGroup().addTo(map);
+
 // 3D Buildings toggle
 let osmb = null;
 let osmbEnabled = false;
@@ -89,6 +93,7 @@ tabButtons.forEach(btn => {
 // ---------------------------
 let selectedIndex = -1;
 let lastLatLng = null; // last geocoded point
+let lastSelectedPlaceName = null; // Store last selected place name
 const searchInput = document.getElementById('search-input');
 const resultList = document.createElement('ul');
 resultList.id = 'results-list';
@@ -115,14 +120,17 @@ searchInput.addEventListener('input', async function () {
       const [lon, lat] = feature.geometry.coordinates;
       lastLatLng = { lat, lon };
       map.setView([lat, lon], 18);
-      if (window.searchMarker) map.removeLayer(window.searchMarker);
-      window.searchMarker = L.marker([lat, lon]).addTo(map)
-        .bindPopup(`<b>${feature.properties.label}</b>`).openPopup();
+      
+      // Add marker to searchLayer instead of directly to map
+      const marker = L.marker([lat, lon]).bindPopup(`<b>${feature.properties.label}</b>`);
+      window.searchLayer.addLayer(marker);
+      marker.openPopup();
+      
       resultList.innerHTML = '';
       searchInput.value = feature.properties.label;
       
-      // Auto-switch to history tab and show history
-      showPlaceHistory(feature.properties.label);
+      // Store the selected place name but DO NOT auto-show history
+      lastSelectedPlaceName = feature.properties.label;
       
       // If journey mode is active, use this as start or end point
       if (journeyActive && window.setJourneyPoint) {
@@ -164,6 +172,22 @@ async function showPlaceHistory(placeName) {
   }
 }
 
+// History button handler - ONLY way to trigger history display
+document.getElementById('hist-btn').addEventListener('click', () => {
+  if (!lastSelectedPlaceName) {
+    alert('Please select a place first.');
+    return;
+  }
+  showPlaceHistory(lastSelectedPlaceName);
+});
+
+// Search Clear button handler
+document.getElementById('search-clear-btn').addEventListener('click', () => {
+  if (window.searchLayer) window.searchLayer.clearLayers();
+  searchInput.value = '';
+  resultList.innerHTML = '';
+});
+
 // Decision logic on Enter key
 searchInput.addEventListener('keydown', async (e) => {
   if (e.key !== 'Enter') return;
@@ -183,10 +207,14 @@ searchInput.addEventListener('keydown', async (e) => {
     const [lon, lat] = peliasData.features[0].geometry.coordinates;
     lastLatLng = { lat, lon };
     map.setView([lat, lon], 18);
-    if (window.searchMarker) map.removeLayer(window.searchMarker);
-    window.searchMarker = L.marker([lat, lon]).addTo(map)
-      .bindPopup(`<b>${peliasData.features[0].properties.label}</b>`).openPopup();
-    showPlaceHistory(peliasData.features[0].properties.label);
+    
+    // Add marker to searchLayer
+    const marker = L.marker([lat, lon]).bindPopup(`<b>${peliasData.features[0].properties.label}</b>`);
+    window.searchLayer.addLayer(marker);
+    marker.openPopup();
+    
+    // Store place name but DO NOT auto-show history
+    lastSelectedPlaceName = peliasData.features[0].properties.label;
   } else {
     // No location → treat as AI query
     await performAiSearch(query);
@@ -213,8 +241,7 @@ document.getElementById('nearby-btn').addEventListener('click', async () => {
   const location = lastLatLng || clickedLatLng;
   if (!location) { alert('Please search or click on the map to set a location.'); return; }
 
-  if (window.resultLayer) window.resultLayer.clearLayers();
-  else window.resultLayer = L.layerGroup().addTo(map);
+  window.nearbyLayer.clearLayers();
 
   const url = `http://localhost:8000/api/nearby?lat=${location.lat}&lon=${location.lon}&type=${keyword}&distance=1000`;
   const res = await fetch(url);
@@ -224,10 +251,15 @@ document.getElementById('nearby-btn').addEventListener('click', async () => {
   data.features.forEach(f => {
     const geom = JSON.parse(f.geometry);
     const layer = L.geoJSON(geom).bindPopup(`<b>${f.name || 'Unnamed'}</b><br>${f.fclass || ''}<br>Source: ${f.source}`);
-    window.resultLayer.addLayer(layer);
+    window.nearbyLayer.addLayer(layer);
   });
 
   alert(data.message);
+});
+
+// Nearby Clear button handler
+document.getElementById('nearby-clear-btn').addEventListener('click', () => {
+  if (window.nearbyLayer) window.nearbyLayer.clearLayers();
 });
 
 // ---------------------------
@@ -250,7 +282,7 @@ map.on('click', async function (e) {
       journeyPoints.end = { lat, lon: lng };
       document.getElementById('journey-end').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
     }
-    // Also notify routing.js (it will handle adding markers / drawing if using setJourneyPoint)
+    // Also notify routing.js (it will handle adding markers but NOT auto-draw route)
     if (window.setJourneyPoint) window.setJourneyPoint(lat, lng, "Map click");
     // after one click, clear selectedField so user explicitly focuses again if needed
     selectedField = null;
@@ -262,9 +294,7 @@ map.on('click', async function (e) {
     const keyword = document.getElementById('keyword-input').value.trim();
     if (!keyword) { alert('Please enter a keyword like temple, bus, hospital'); return; }
 
-    // prepare result layer
-    if (window.resultLayer) window.resultLayer.clearLayers();
-    else window.resultLayer = L.layerGroup().addTo(map);
+    window.nearbyLayer.clearLayers();
 
     try {
       const url = `http://localhost:8000/api/nearby?lat=${lat}&lon=${lng}&type=${encodeURIComponent(keyword)}&distance=1000`;
@@ -275,7 +305,7 @@ map.on('click', async function (e) {
         data.features.forEach(f => {
           const geom = JSON.parse(f.geometry);
           const layer = L.geoJSON(geom).bindPopup(`<b>${f.name || 'Unnamed'}</b><br>${f.fclass || ''}<br>Source: ${f.source}`);
-          window.resultLayer.addLayer(layer);
+          window.nearbyLayer.addLayer(layer);
         });
         alert(data.message || `Found ${data.features.length} results.`);
       }
@@ -313,12 +343,11 @@ async function performAiSearch(query) {
     const result = await response.json();
     if (!response.ok) { console.error('AI search failed:', result); alert('AI search failed: ' + (result.detail || 'Unknown error')); return; }
 
-    if (window.resultLayer) window.resultLayer.clearLayers();
-    else window.resultLayer = L.layerGroup().addTo(map);
+    window.nearbyLayer.clearLayers();
 
     result.features.forEach(f => {
       const layer = L.geoJSON(f.geometry).bindPopup(`<b>${f.properties.name || 'Unnamed'}</b><br>${f.properties.fclass || ''}`);
-      window.resultLayer.addLayer(layer);
+      window.nearbyLayer.addLayer(layer);
     });
 
     alert(`AI search returned ${result.features.length} results.`);
@@ -465,3 +494,6 @@ journeyCancel.addEventListener('click', () => {
 if (window.routing && typeof window.routing.initRoutingUI === 'function') {
   window.routing.initRoutingUI();
 }
+
+
+

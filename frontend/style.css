@@ -180,6 +180,7 @@ html, body {
   position: static;
   width: auto;
   max-height: none;
+  margin-top: 12px;
 }
 
 #history-panel h3 {
@@ -220,6 +221,7 @@ html, body {
   border-radius: 8px;
   max-height: 300px;
   overflow-y: auto;
+  margin-bottom: 10px;
 }
 
 #results-list li {
@@ -445,3 +447,9 @@ input[type="range"] {
     max-width: calc(100% - 16px);
   }
 }
+
+
+
+
+
+
