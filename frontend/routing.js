@@ -183,8 +183,3 @@
     getAndDrawRoute
   };
 })();
-
-
-
-
-

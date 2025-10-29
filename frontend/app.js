@@ -181,9 +181,11 @@ document.getElementById('hist-btn').addEventListener('click', () => {
   showPlaceHistory(lastSelectedPlaceName);
 });
 
-// Search Clear button handler
+// FIX #1: Search Clear button handler - now clears BOTH searchLayer and nearbyLayer (for AI results)
 document.getElementById('search-clear-btn').addEventListener('click', () => {
   if (window.searchLayer) window.searchLayer.clearLayers();
+  // AI search results are stored in nearbyLayer, so clear those too
+  if (window.nearbyLayer) window.nearbyLayer.clearLayers();
   searchInput.value = '';
   resultList.innerHTML = '';
 });
@@ -234,11 +236,14 @@ function updateActiveItem(items) {
 // ---------------------------
 // Nearby Button
 // ---------------------------
+// FIX #2: Track the nearby reference marker
+let nearbyReferenceMarker = null;
+
 document.getElementById('nearby-btn').addEventListener('click', async () => {
   const keyword = document.getElementById('keyword-input').value.trim();
   if (!keyword) { alert('Please enter a keyword like temple, bus, hospital'); return; }
 
-  // FIX: Use fallback chain: lastLatLng → clickedLatLng → map center
+  // Use fallback chain: lastLatLng → clickedLatLng → map center
   let location = lastLatLng || clickedLatLng || map.getCenter();
   const lat = location.lat;
   // Handle both .lon (from Pelias) and .lng (from Leaflet click)
@@ -249,7 +254,7 @@ document.getElementById('nearby-btn').addEventListener('click', async () => {
     return;
   }
 
-  console.log(`Nearby search at: lat=${lat}, lon=${lon}, keyword=${keyword}`); // Debug log
+  console.log(`Nearby search at: lat=${lat}, lon=${lon}, keyword=${keyword}`);
 
   window.nearbyLayer.clearLayers();
 
@@ -276,9 +281,14 @@ document.getElementById('nearby-btn').addEventListener('click', async () => {
   }
 });
 
-// Nearby Clear button handler
+// FIX #2: Nearby Clear button handler - now also removes reference marker
 document.getElementById('nearby-clear-btn').addEventListener('click', () => {
   if (window.nearbyLayer) window.nearbyLayer.clearLayers();
+  // Also remove the nearby reference marker if it exists
+  if (nearbyReferenceMarker) {
+    map.removeLayer(nearbyReferenceMarker);
+    nearbyReferenceMarker = null;
+  }
 });
 
 // ---------------------------
@@ -340,11 +350,14 @@ map.on('click', async function (e) {
     return;
   }
 
-  // 3) Default (no mode active): set a simple clicked marker for manual use
+  // FIX #2: 3) Default (no mode active): set a simple clicked marker and track it as nearby reference
   clickedLatLng = e.latlng;
   if (window.clickMarker) map.removeLayer(window.clickMarker);
   window.clickMarker = L.marker(clickedLatLng).addTo(map)
     .bindPopup("Clicked location set. Use Nearby or search to continue.").openPopup();
+  
+  // Track this as the nearby reference marker
+  nearbyReferenceMarker = window.clickMarker;
 });
 
 // ---------------------------
@@ -389,6 +402,19 @@ let selectedField = null; // "start" | "end"
 let journeyPoints = { start: null, end: null };
 let journeyInputMarkers = []; // Track markers created during journey input
 
+// FIX #3: Create autocomplete result lists for journey inputs
+const journeyStartResultList = document.createElement('ul');
+journeyStartResultList.id = 'journey-start-results';
+journeyStartResultList.className = 'journey-results-list';
+
+const journeyEndResultList = document.createElement('ul');
+journeyEndResultList.id = 'journey-end-results';
+journeyEndResultList.className = 'journey-results-list';
+
+// Insert result lists after the input fields
+journeyStart.parentNode.insertBefore(journeyStartResultList, journeyStart.nextSibling);
+journeyEnd.parentNode.insertBefore(journeyEndResultList, journeyEnd.nextSibling);
+
 // ---------------------------
 // Journey tab activation
 // ---------------------------
@@ -406,35 +432,58 @@ document.getElementById('journey-tab-btn').addEventListener('click', () => {
 journeyStart.addEventListener('focus', () => selectedField = 'start');
 journeyEnd.addEventListener('focus', () => selectedField = 'end');
 
-// ---------------------------
-// Pelias geocode for typing search (auto sets start/end)
-// ---------------------------
-async function geocodeJourneyInput(input, field) {
-  const query = input.value.trim();
-  if (query.length < 3) return;
-  try {
-    const res = await fetch(`http://localhost:4000/v1/autocomplete?text=${encodeURIComponent(query)}`);
-    const data = await res.json();
-    if (data.features && data.features[0]) {
-      const [lon, lat] = data.features[0].geometry.coordinates;
-      journeyPoints[field] = { lat, lon };
-      map.setView([lat, lon], 17);
-      
-      // FIX: Track the marker so we can remove it later
-      const marker = L.marker([lat, lon])
-        .addTo(map)
-        .bindPopup(`${field === 'start' ? 'Start' : 'End'}: ${data.features[0].properties.label}`)
-        .openPopup();
-      
-      journeyInputMarkers.push(marker);
+// FIX #3: Pelias autocomplete with dropdown for journey inputs
+async function setupJourneyAutocomplete(input, resultList, field) {
+  input.addEventListener('input', async function () {
+    const query = this.value.trim();
+    if (query.length < 2) {
+      resultList.innerHTML = '';
+      return;
     }
-  } catch (err) {
-    console.error('Pelias geocode failed:', err);
-  }
+
+    try {
+      const res = await fetch(`http://localhost:4000/v1/autocomplete?text=${encodeURIComponent(query)}`);
+      const data = await res.json();
+
+      resultList.innerHTML = '';
+      if (!data.features || data.features.length === 0) return;
+
+      data.features.forEach(feature => {
+        const li = document.createElement('li');
+        li.textContent = feature.properties.label;
+        li.addEventListener('click', () => {
+          const [lon, lat] = feature.geometry.coordinates;
+          journeyPoints[field] = { lat, lon };
+          input.value = feature.properties.label;
+          map.setView([lat, lon], 17);
+          
+          // Track the marker so we can remove it later
+          const marker = L.marker([lat, lon])
+            .addTo(map)
+            .bindPopup(`${field === 'start' ? 'Start' : 'End'}: ${feature.properties.label}`)
+            .openPopup();
+          
+          journeyInputMarkers.push(marker);
+          resultList.innerHTML = '';
+        });
+        resultList.appendChild(li);
+      });
+    } catch (err) {
+      console.error('Pelias autocomplete failed:', err);
+    }
+  });
+
+  // Clear results when input loses focus (with delay to allow click)
+  input.addEventListener('blur', () => {
+    setTimeout(() => { resultList.innerHTML = ''; }, 200);
+  });
 }
 
-journeyStart.addEventListener('input', () => geocodeJourneyInput(journeyStart, 'start'));
-journeyEnd.addEventListener('input', () => geocodeJourneyInput(journeyEnd, 'end'));
+// Setup autocomplete for both journey inputs
+setupJourneyAutocomplete(journeyStart, journeyStartResultList, 'start');
+setupJourneyAutocomplete(journeyEnd, journeyEndResultList, 'end');
+
+// Legacy geocodeJourneyInput removed - now handled by setupJourneyAutocomplete
 
 // ---------------------------
 // Request route from FastAPI Valhalla proxy with transport mode
@@ -500,9 +549,13 @@ journeyCancel.addEventListener('click', () => {
   selectedField = null;
   journeyPoints = { start: null, end: null };
 
-  // FIX: Clear markers created during input typing
+  // Clear markers created during input typing
   journeyInputMarkers.forEach(marker => map.removeLayer(marker));
   journeyInputMarkers = [];
+
+  // FIX #3: Clear autocomplete result lists
+  journeyStartResultList.innerHTML = '';
+  journeyEndResultList.innerHTML = '';
 
   // Clear route + markers (from routing.js)
   if (window.routing && typeof window.routing.clearRouting === 'function') {
@@ -522,6 +575,3 @@ journeyCancel.addEventListener('click', () => {
 if (window.routing && typeof window.routing.initRoutingUI === 'function') {
   window.routing.initRoutingUI();
 }
-
-
-

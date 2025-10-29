@@ -244,6 +244,34 @@ html, body {
   background-color: #e0e7ef;
 }
 
+/* Journey autocomplete results (FIX #3 - mimics #results-list styling) */
+.journey-results-list {
+  list-style: none;
+  margin: 0 0 10px 0;
+  padding: 0;
+  background: white;
+  border: 1px solid #e0e7ef;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.journey-results-list li {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+  color: #334155;
+}
+
+.journey-results-list li:last-child {
+  border-bottom: none;
+}
+
+.journey-results-list li:hover {
+  background-color: #f1f5f9;
+}
+
 /* ========================================
    TOP-RIGHT FLOATING CONTROLS (3D & Basemap)
    ======================================== */
@@ -447,9 +475,3 @@ input[type="range"] {
     max-width: calc(100% - 16px);
   }
 }
-
-
-
-
-
-
